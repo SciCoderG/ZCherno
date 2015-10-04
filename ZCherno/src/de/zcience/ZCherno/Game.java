@@ -1,13 +1,14 @@
 package de.zcience.ZCherno;
 
 import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 
 import javax.swing.JFrame;
 
 public class Game extends Canvas implements Runnable {
-
 
 	private static final long serialVersionUID = 1L;
 	public static int width = 300;
@@ -17,11 +18,11 @@ public class Game extends Canvas implements Runnable {
 	private Thread thread;
 	private JFrame frame;
 	private boolean running = false;
-	
-	public Game(){
+
+	public Game() {
 		Dimension size = new Dimension(width * scale, height * scale);
 		setPreferredSize(size);
-		
+
 		frame = new JFrame();
 	}
 
@@ -34,11 +35,11 @@ public class Game extends Canvas implements Runnable {
 		thread = new Thread(this, "Display"); // attaching Thread to Game Object
 		thread.start();
 	}
-	
+
 	/**
 	 * Stops the thread.
 	 */
-	public synchronized void stop(){
+	public synchronized void stop() {
 		running = false;
 		try {
 			thread.join();
@@ -47,26 +48,39 @@ public class Game extends Canvas implements Runnable {
 		}
 	}
 
+	/**
+	 * called, after thread was started, basically the main loop
+	 */
 	@Override
 	public void run() {
-		while(running){
+		while (running) {
 			update();
 			render();
 		}
 	}
-	
+
 	public void update() {
-		
-	}
-	
-	public void render() {
-		BufferStrategy bs = getBufferStrategy();
-		if(bs == null){
-			createBufferStrategy(3); // triple buffering :D
-			return;
-		}
+
 	}
 
+	public void render() {
+		BufferStrategy bs = getBufferStrategy();
+		if (bs == null) {
+			createBufferStrategy(3); // triple buffering :D
+			return;
+		}else{
+			Graphics g = bs.getDrawGraphics();
+			// all graphics being drawn on the screen will be drawn here
+
+			g.setColor(Color.red);
+			g.fillRect(0, 0, getWidth(), getHeight());
+			g.dispose(); // has to be done! if not, game will crash after some time.
+							// disposes of the allready drawn graphics
+			bs.show(); // makes next available buffer appear
+		}
+
+	
+	}
 
 	public static void main(String[] args) {
 		Game game = new Game();
@@ -77,9 +91,8 @@ public class Game extends Canvas implements Runnable {
 		game.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		game.frame.setLocationRelativeTo(null); // centers our window
 		game.frame.setVisible(true); // shows the window
-		
+
 		game.start();
-		
-		
+
 	}
 }
